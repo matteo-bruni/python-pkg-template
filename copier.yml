@@ -1,0 +1,126 @@
+_subdirectory: template
+
+namespace:
+    type: str
+    help: What is your project namespace? (leave empty if none)
+    default: ''
+    validator: >-
+        {% if (namespace != '' and not (namespace | regex_search('^([a-zA-Z_][a-zA-Z0-9_]*(\.[a-zA-Z_][a-zA-Z0-9_]*)*)?$'))) %}
+        Not a valid namespace: must start with a letter, followed one or more letters, digits or underscore. (use . for multiple namespaces)
+        {% endif %}
+    
+package_name:
+    type: str
+    help: What is your Python package name?
+    # validator: "{% if package_name == '' %}Field required{% endif %}"
+    validator: >-
+        {% if not (package_name | regex_search('^[a-zA-Z_][a-zA-Z0-9_]*$')) %}
+        Not a valid package name must start with a letter, followed one or more letters, digits or underscore.
+        {% endif %}
+
+python_version:
+    type: str
+    help: What is the minimum Python version you want to support? (e.g. "3.10")
+    default: "3.10"
+    choices:
+        - "3.8"
+        - "3.9"
+        - "3.10"
+        - "3.11"
+        - "3.12"
+
+package_upload_index:
+    type: str
+    help: On tbump, upload package to which index? (leave empty to avoid upload, pypi or a custom index)
+    default: ''
+
+author:
+    type: str
+    help: Who is the author of the project? (e.g. "John Doe")
+    validator: "{% if author == '' %}Field required{% endif %}"
+
+author_email:
+    type: str
+    help: What is the author's email? (e.g. john.doe@mail.com)
+    validator: >-
+        {% if not (author_email | regex_search('(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')) %}
+        Field must be a valid mail.
+        {% endif %}
+
+cli:
+    type: bool
+    help: Does the package expose cli scripts?
+    default: yes
+    choices:
+        - yes
+        - no
+
+test:
+    type: bool
+    help: Add pytest?
+    default: yes
+    choices:
+        - yes
+        - no
+
+devcontainer:
+    type: bool
+    help: Add devcontainer?
+    default: yes
+    choices:
+        - yes
+        - no
+
+devcontainer_base_image:
+    type: str
+    help: What is the base image for the devcontainer?
+    default: "ubuntu"
+    validator: "{% if devcontainer_base_image == '' %}Field required{% endif %}"
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+
+devcontainer_base_image_tag:
+    type: str
+    help: What is the base image tag for the devcontainer?
+    default: "22.04"
+    validator: "{% if devcontainer_base_image_tag == '' %}Field required{% endif %}"
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+
+devcontainer_gpu:
+    type: bool
+    help: Does the container require GPU access?
+    choices:
+        - yes
+        - no
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+
+devcontainer_privileged:
+    type: bool
+    help: Does the docker container needs to be privileged?
+    choices:
+        - yes
+        - no
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+
+---
+!include extra.yml
+---
+
+# bug: python.analysis.fixAll enable all the fixers (it ignore the list provided)
+# python_remove_unused_imports:
+#     type: bool
+#     help: Do you want to remove unused imports on save? (VSCode only)
+#     choices:
+#         - yes
+#         - no
+
+_message_after_copy: |
+    Your project "{{ package_name }}" has been created successfully!
+
+    Next steps:
+
+    1. Change directory to the project root:
+
+       $ cd {{ _copier_conf.dst_path }}
+    
+    2. (if enabled) on vscode, open the project and press F1 -> Remote-Containers: Reopen in Container
+    3. (if enabled) uncomment the cli entrypoint in pyproject.toml and reinstall the package (pip install -e .)

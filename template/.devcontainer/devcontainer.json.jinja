@@ -1,0 +1,81 @@
+{
+	"name": "{{namespace}}-{{package_name}}-devcontainer",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"args": {
+			"USER": "${localEnv:USER}",
+			"UID": "${localEnv:UID}",
+			"GID": "${localEnv:GID}",
+			"BASE_IMAGE": "{{devcontainer_base_image}}",
+			"BASE_IMAGE_TAG": "{{devcontainer_base_image_tag}}",
+		}
+	},
+	"containerEnv": {
+		"USER": "${localEnv:USER}",
+		"USER_ID": "${localEnv:UID}",
+		"GROUP_ID": "${localEnv:GID}",
+		"REQUESTS_CA_BUNDLE": "/etc/ssl/certs/ca-certificates.crt", // needed by requests
+    	"SSL_CERT_FILE": "/etc/ssl/certs/ca-certificates.crt", // needed by urllib3
+	},
+	"remoteEnv": {
+		"PATH": "${containerEnv:PATH}:/home/${localEnv:USER}/.local/bin/",
+		"DISPLAY": "${localEnv:DISPLAY}",
+		"XDG_RUNTIME_DIR": "/tmp/host_xdg_runtime/",
+    	"WAYLAND_DISPLAY": "${localEnv:WAYLAND_DISPLAY:wayland-display-missing}",
+		"SETUPTOOLS_ENABLE_FEATURES": "legacy-editable"	// if installing editable dependencies, needed for vscode
+	},
+	"workspaceMount": "source=${localWorkspaceFolder}/,target=/code,type=bind",
+	"workspaceFolder": "/code",
+	"customizations": {
+		"vscode": {
+			"extensions": [
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"ms-vsliveshare.vsliveshare",
+				"tamasfe.even-better-toml",
+				"GitHub.copilot",
+				"charliermarsh.ruff",
+				"streetsidesoftware.code-spell-checker",
+				"streetsidesoftware.code-spell-checker-italian"
+			]
+		}
+	},
+	"mounts": [
+		// .bashrc & .bash_history
+		"source=${localWorkspaceFolder}/.devcontainer/bash/.bashrc,target=/home/${localEnv:USER}/.bashrc,type=bind",
+		"source=${localWorkspaceFolder}/.devcontainer/bash/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind",
+		// Extra mounts
+		{% for m in extra['mounts'] -%}
+		// {{ m['description'] }}
+		"source={{m['source']}},target={{m['target']}},type={{m['type']}}",
+		{%- endfor %}
+		// pip stuff (w/ ssl host certificates)
+		"source=${localEnv:HOME}/.pip/pip.conf,target=/home/${localEnv:USER}/.pip/pip.conf,type=bind,readonly",
+		"source=${localEnv:HOME}/.pypirc,target=/home/${localEnv:USER}/.pypirc,type=bind,readonly",
+		"source=/usr/lib/ssl/certs/ca-certificates.crt,target=/usr/lib/ssl/certs/ca-certificates.crt,type=bind,readonly",
+		// for x and wayland redirection, uncomment if needed
+		// wayland and x forwarding
+		// "source=${localEnv:XDG_RUNTIME_DIR}/,target=/tmp/host_xdg_runtime/,type=bind",
+		// "source=/tmp/.X11-unix/,target=/tmp/.X11-unix/,type=bind",
+		// "source=${localEnv:XAUTHORITY},target=/root/.Xauthority,type=bind",
+		// dri
+		// "source=/dev/dri/,target=/dev/dri/,type=bind"
+	],
+	"runArgs": [
+		{%- if devcontainer_privileged %}
+		"--privileged",
+		{% endif %}
+		{%- if devcontainer_gpu %}
+		"--gpus",
+		"all",
+		"--runtime=nvidia",
+		{%- endif %}
+		"--hostname",
+		"{{namespace}}-{{package_name}}",
+		"--name",
+		"${localEnv:USER}_{{namespace}}-{{package_name}}"
+	],
+	"initializeCommand": ".devcontainer/initialize.sh",
+	"postCreateCommand": ".devcontainer/postCreate.sh",
+	"remoteUser": "${localEnv:USER}"
+}

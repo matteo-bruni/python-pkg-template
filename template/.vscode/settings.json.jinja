@@ -1,0 +1,43 @@
+{
+    "editor.rulers": [
+      120
+    ],
+    "editor.guides.bracketPairs": true,
+    "explorer.compactFolders": false,
+    "explorer.autoReveal": true,
+    "explorer.autoRevealExclude": {
+      "**/node_modules": true
+    },
+    "search.exclude": {
+      "**/.git": true
+    },
+    // python settings
+    "python.analysis.indexing": true,
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.autoImportUserSymbols": true,
+    "python.analysis.diagnosticMode": "workspace",
+    "python.analysis.typeCheckingMode": "basic",
+    "python.analysis.importFormat": "absolute",
+    "python.analysis.autoFormatStrings": true,
+    "python.analysis.packageIndexDepths": [
+      {
+        "depth": 100,
+        "includeAllSymbols": true,
+        "name": ""
+      }
+    ],
+    //"python.analysis.fixAll": [
+    //    "source.convertImportFormat",
+    //    {%- if python_remove_unused_imports -%} "source.unusedImports" {% endif %}
+    //],
+    "[python]": {
+      "editor.defaultFormatter": "charliermarsh.ruff",
+      "editor.formatOnSave": true,
+      "editor.codeActionsOnSave": {
+        "source.organizeImports": "explicit",
+        "source.fixAll": "never" // bugged, if enabled it will apply all fixes on save even if only one is enabled
+      },
+      
+    },
+
+  }

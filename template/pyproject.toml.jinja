@@ -1,0 +1,71 @@
+[build-system]
+requires = ["setuptools>=61.2", "wheel", "build>=0.8.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{% if namespace %}{{namespace}}.{% endif %}{{package_name}}"
+version = "0.0.0"
+authors = [
+    { name = "{{ author }}", email = "{{ author_email }}" },
+]
+description = "Build tools"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: Proprietary",
+    "Operating System :: OS Independent",
+]
+requires-python = ">={{ python_version }}"
+dynamic = ["dependencies", "optional-dependencies"]
+
+# [project.scripts]
+# executable_name = '{% if namespace %}{{namespace}}.{% endif %}{{package_name}}.cli.example:app'
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+optional-dependencies.dev = {file = ["requirements.dev.txt"]}
+
+[project.readme]
+file = "README.md"
+content-type = "text/markdown"
+
+[tool.setuptools]
+include-package-data = true
+package-dir = { "" = "src" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = {% if namespace %}["{{namespace}}.*"]{% else %}[ "*" ]{% endif %}
+namespaces = {% if namespace %}true{% else %}false{% endif %}
+
+# pytest
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = [
+    "--import-mode=importlib",
+    "-rA", "-l", "--tb=auto", "-s", "--show-capture=log"
+]
+testpaths = [
+    "tests",
+]
+log_cli = true
+log_cli_level = "WARNING"
+log_format = "%(asctime)s %(levelname)s %(message)s"
+log_date_format = "%Y-%m-%d %H:%M:%S"
+
+[tool.ruff]
+line-length = 120
+indent-width = 4
+target-version = "py{{ python_version.replace('.', '') }}"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"

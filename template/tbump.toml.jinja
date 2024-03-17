@@ -1,0 +1,54 @@
+[version]
+current = "0.0.0"
+
+# Example of a semver regexp.
+# Make sure this matches current_version before
+# using tbump
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
+[git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+# For each file to patch, add a [[file]] config
+# section containing the path of the file, relative to the
+# tbump.toml location.
+[[file]]
+src = "pyproject.toml"
+search = 'version = "{current_version}"'
+
+# BEFORE COMMIT, REVERTABLE
+[[before_commit]]
+name = "Check if local branch is up to date with remote"
+cmd = "git fetch; [ \"$(git rev-parse HEAD)\" = \"$(git rev-parse @{{u}})\" ] || (echo 'Local branch is not up to date with remote. Please pull first.'; tbump --only-patch --non-interactive {current_version}; exit 1)"
+
+[[before_commit]]
+name = "Run Ruff"
+cmd = "ruff format src"
+
+# Or run some commands after the git tag and the branch
+# have been pushed:
+[[before_commit]]
+name = "Clean previous builds"
+cmd = "rm -rf ./build/ && rm -rf ./dist/"
+
+[[before_commit]]
+name = "Build Wheels"
+cmd = "python3 -m build || (R=$?; echo 'Build Error! Reverting.'; tbump --only-patch --non-interactive {current_version}; exit $R)"
+
+{% if package_upload_index != '' %}
+[[after_push]]
+name = "Upload to Pypi"
+cmd = "python3 -m twine upload --cert /usr/lib/ssl/certs/ca-certificates.crt --repository {{ package_upload_index }} dist/* --verbose"
+{% else %}
+# not enabled on project setup, uncomment to use 
+# [[after_push]]
+# name = "Upload to Pypi"
+# cmd = "python3 -m twine upload --cert /usr/lib/ssl/certs/ca-certificates.crt --repository pypi dist/* --verbose"
+{% endif %}

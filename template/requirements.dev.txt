@@ -1,0 +1,6 @@
+tbump
+twine
+pytest
+pytest-datafiles
+build
+ruff
