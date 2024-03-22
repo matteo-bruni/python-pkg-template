@@ -12,14 +12,14 @@ env_error() {
     echo "  - USER               your username             `check_env ${USER}`"
     echo "  - UID                your user id              `check_env ${UID}`"
     echo "  - GID                your group id             `check_env ${GID}`"
-    {% for e in extra['env_on_host'] %}
+    {% for e in devcontainer_host_env %}
     echo "  - {{ e }}    `check_env $({{ e }})`"
     {% endfor %}
     echo ""
     echo "\033[0m"
 }
 
-if [ -z ${USER+x} ]{% for e in extra['env_on_host'] %} || [ -z $({{ e }}+x) ]{% endfor %}; then
+if [ -z ${USER+x} ]{% for e in devcontainer_host_env %} || [ -z $({{ e }}+x) ]{% endfor %}; then
     env_error
     exit 1
 fi

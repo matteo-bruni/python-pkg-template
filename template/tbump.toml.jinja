@@ -42,13 +42,8 @@ cmd = "rm -rf ./build/ && rm -rf ./dist/"
 name = "Build Wheels"
 cmd = "python3 -m build || (R=$?; echo 'Build Error! Reverting.'; tbump --only-patch --non-interactive {current_version}; exit $R)"
 
-{% if package_upload_index != '' %}
+{% if tbump_package_upload_index %}
 [[after_push]]
 name = "Upload to Pypi"
 cmd = "python3 -m twine upload --cert /usr/lib/ssl/certs/ca-certificates.crt --repository {{ package_upload_index }} dist/* --verbose"
-{% else %}
-# not enabled on project setup, uncomment to use 
-# [[after_push]]
-# name = "Upload to Pypi"
-# cmd = "python3 -m twine upload --cert /usr/lib/ssl/certs/ca-certificates.crt --repository pypi dist/* --verbose"
 {% endif %}

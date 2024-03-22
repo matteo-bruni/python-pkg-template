@@ -29,10 +29,20 @@ python_version:
         - "3.11"
         - "3.12"
 
+tbump_package_upload_index:
+    type: bool
+    help: Upload build to a package index after tbump?
+    default: yes
+    choices:
+        - yes
+        - no
+
 package_upload_index:
     type: str
-    help: On tbump, upload package to which index? (leave empty to avoid upload, pypi or a custom index)
-    default: ''
+    help: Name of the package index? 
+    default: 'pypi'
+    validator: "{% if package_upload_index == '' %}Field required{% endif %}"
+    when: "{% if tbump_package_upload_index %}true{% else %}false{% endif %}"
 
 author:
     type: str
@@ -101,11 +111,33 @@ devcontainer_privileged:
         - no
     when: "{% if devcontainer %}true{% else %}false{% endif %}"
 
----
-!include extra.yml
----
 
-# bug: python.analysis.fixAll enable all the fixers (it ignore the list provided)
+devcontainer_host_env:
+    type: json
+    help: Please provide the environment variables that must exist on the host when starting the devcontainer
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+    default: >-
+        ["GID", "UID"]
+    multiline: true
+
+
+devcontainer_extra_mounts:
+    type: json
+    help: Please provide the extra mounts that must exist on the host when starting the devcontainer
+    when: "{% if devcontainer %}true{% else %}false{% endif %}"
+    default: >-
+        [
+            {
+                "source": "/",
+                "target": "/host/",
+                "type": "bind,readonly",
+                "description": "Mount the host filesystem as read-only"
+            }
+        ]
+    multiline: true
+
+
+# bug: python.analysis.fixAll enable all the fixers (even if a subset is selected)
 # python_remove_unused_imports:
 #     type: bool
 #     help: Do you want to remove unused imports on save? (VSCode only)

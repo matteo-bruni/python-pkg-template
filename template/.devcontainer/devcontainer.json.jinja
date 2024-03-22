@@ -45,7 +45,7 @@
 		"source=${localWorkspaceFolder}/.devcontainer/bash/.bashrc,target=/home/${localEnv:USER}/.bashrc,type=bind",
 		"source=${localWorkspaceFolder}/.devcontainer/bash/.bash_history,target=/home/${localEnv:USER}/.bash_history,type=bind",
 		// Extra mounts
-		{% for m in extra['mounts'] -%}
+		{% for m in devcontainer_extra_mounts -%}
 		// {{ m['description'] }}
 		"source={{m['source']}},target={{m['target']}},type={{m['type']}}",
 		{%- endfor %}
