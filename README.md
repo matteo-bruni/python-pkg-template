@@ -14,7 +14,7 @@ Opinionated template for new python projects.
 - ✅ (optional) devcontainer
 - ✅ (optional) namespace (can have nested namespaces)
 
-i might add more feature in the future like [uv](https://github.com/astral-sh/uv) or lockfile (if what discussed in https://discuss.python.org/t/lock-files-again-but-this-time-w-sdists/ becomes a thing)
+i might add more feature in the future like other build systems (poetry, pdm, hatch, nuitka) or lockfile (if what discussed in https://discuss.python.org/t/lock-files-again-but-this-time-w-sdists/ becomes a thing)
 
 
 ### Customize devcontainer
